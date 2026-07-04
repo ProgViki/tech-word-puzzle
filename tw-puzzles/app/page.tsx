@@ -1,65 +1,111 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import Grid from '@/components/game/Grid';
+import Keyboard from '@/components/game/Keyboard';
+import GameStatus from '@/components/game/GameStatus';
+import StatsModal from '@/components/game/StatsModal';
+import { useGameStore } from '@/lib/store/gameStore';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Home() {
+  const [showStats, setShowStats] = useState(false);
+  const { gameStatus, resetGame } = useGameStore();
+  
+  // Share functionality
+  const shareResult = () => {
+    const { guesses, targetWord, stats } = useGameStore.getState();
+    const attempts = guesses.length;
+    const result = gameStatus === 'won' ? '✅' : '❌';
+    
+    const gridEmojis = guesses.map(guess => {
+      // Convert guess to emojis
+      // This is simplified - you'd want proper emoji mapping
+      return '🟩🟨⬛'; // Placeholder
+    }).join('\n');
+    
+    const shareText = `
+Tech Word Puzzle ${result}
+${attempts}/${6} attempts
+${gridEmojis}
+#TechWordPuzzle
+    `.trim();
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Tech Word Puzzle',
+        text: shareText,
+      }).catch(() => {
+        copyToClipboard(shareText);
+      });
+    } else {
+      copyToClipboard(shareText);
+    }
+  };
+  
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success('Copied to clipboard!');
+    });
+  };
+  
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+      <Toaster position="top-center" />
+      
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            TechWord
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+          <div className="flex gap-3">
+            <button
+              onClick={shareResult}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2"
+              aria-label="Share result"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setShowStats(true)}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2"
+              aria-label="View statistics"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        
+        {/* Game */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Grid />
+          <Keyboard />
+        </motion.div>
+        
+        {/* Game Over Modal */}
+        <GameStatus />
+        
+        {/* Stats Modal */}
+        <StatsModal 
+          isOpen={showStats} 
+          onClose={() => setShowStats(false)} 
+        />
+        
+        {/* Footer */}
+        <p className="mt-8 text-center text-xs text-gray-400 dark:text-gray-500">
+          Guess the 6-letter tech term • New word daily
+        </p>
+      </div>
+    </main>
   );
 }
