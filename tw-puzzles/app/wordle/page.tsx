@@ -7,8 +7,8 @@ import Grid from '@/components/game1/Grid';
 import Keyboard from '@/components/game1/Keyboard';
 import GameStatus from '@/components/game1/GameStatus';
 import StatsModal from '@/components/game1/StatsModal';
-import { ToastContainer } from '@/components/ui/Toast';
 import { useGameStore } from '@/lib/store/gameStore';
+import ToastContainer from '@/components/ui/ToastContainer';
 
 export default function WordleGame() {
   const [showStats, setShowStats] = useState(false);

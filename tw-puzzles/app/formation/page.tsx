@@ -6,6 +6,7 @@ import LetterPool from '@/components/game2/LetterPool';
 import InputArea from '@/components/game2/InputArea';
 import FoundWords from '@/components/game2/FoundWords';
 import GameStats from '@/components/game2/GameStats';
+import  ToastContainer, { toast } from '@/components/ui/ToastContainer';
 import {
   WordFormationState,
   DIFFICULTY_SETTINGS,
@@ -13,9 +14,9 @@ import {
   canFormWord,
   calculateScore,
   hasWon,
-  getAllPossibleWords,
+//   getAllPossibleWords,
+  FORMATION_DICT,
 } from '@/lib/game2/wordFormation';
-import { ToastContainer } from '@/components/ui/Toast';
 
 export default function FormationGame() {
   const [game, setGame] = useState<WordFormationState | null>(null);
@@ -29,10 +30,23 @@ export default function FormationGame() {
   }, []);
 
   const startNewGame = useCallback(() => {
-    const newGame = createNewRound(difficulty);
-    setGame(newGame);
-    setUsedLetters(new Set());
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      const newGame = createNewRound(difficulty);
+      setGame(newGame);
+      setUsedLetters(new Set());
+      setIsLoading(false);
+      
+      toast.info(`New ${difficulty} round started!`, {
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error starting game:', error);
+      toast.error('Failed to start game. Please try again!', {
+        duration: 5000,
+      });
+      setIsLoading(false);
+    }
   }, [difficulty]);
 
   // Timer
@@ -46,6 +60,9 @@ export default function FormationGame() {
         
         // Auto-lose after 3 minutes
         if (newTime >= 180) {
+          toast.error("⏰ Time's up! Better luck next round!", {
+            duration: 5000,
+          });
           return { ...prev, time: newTime, status: 'lost' };
         }
         
@@ -65,15 +82,12 @@ export default function FormationGame() {
       .filter(({ letter: l, index: i }) => !usedLetters.has(i) && l === letter);
     
     if (availableIndices.length === 0) {
-      // Show toast
-      const event = new CustomEvent('showToast', {
-        detail: { message: 'No more of that letter available!', type: 'error' }
+      toast.error(`No more "${letter}" available!`, {
+        duration: 2000,
       });
-      window.dispatchEvent(event);
       return;
     }
 
-    // Use the first available index
     const index = availableIndices[0].index;
     setUsedLetters(prev => new Set(prev).add(index));
     setGame(prev => prev ? { ...prev, currentWord: prev.currentWord + letter } : null);
@@ -83,8 +97,6 @@ export default function FormationGame() {
   const handleRemoveLetter = () => {
     if (!game || game.status !== 'playing' || game.currentWord.length === 0) return;
     
-    const lastLetter = game.currentWord.slice(-1);
-    // Find the last used letter index
     const usedArray = Array.from(usedLetters);
     const lastUsedIndex = usedArray[usedArray.length - 1];
     
@@ -99,26 +111,45 @@ export default function FormationGame() {
 
   // Handle submitting a word
   const handleSubmitWord = () => {
-    if (!game || game.status !== 'playing' || game.currentWord.length === 0) return;
+    if (!game || game.status !== 'playing' || game.currentWord.length === 0) {
+      toast.warning("Please enter a word first!", {
+        duration: 2000,
+      });
+      return;
+    }
 
     const word = game.currentWord.toUpperCase();
+    const minLength = DIFFICULTY_SETTINGS[game.difficulty].minWordLength;
+    
+    // Check minimum length
+    if (word.length < minLength) {
+      toast.warning(`Words must be at least ${minLength} letters!`, {
+        duration: 2500,
+      });
+      return;
+    }
     
     // Check if word has been found already
     if (game.foundWords.includes(word)) {
-      const event = new CustomEvent('showToast', {
-        detail: { message: 'Word already found!', type: 'error' }
+      toast.error(`"${word}" already found!`, {
+        duration: 2500,
       });
-      window.dispatchEvent(event);
       return;
     }
 
     // Check if word exists in dictionary
-    const allPossible = getAllPossibleWords(game.letters, game.difficulty);
-    if (!allPossible.includes(word)) {
-      const event = new CustomEvent('showToast', {
-        detail: { message: 'Not a valid tech word!', type: 'error' }
+    if (!FORMATION_DICT.includes(word)) {
+      toast.error(`"${word}" is not a valid tech term!`, {
+        duration: 3000,
       });
-      window.dispatchEvent(event);
+      return;
+    }
+
+    // Check if word can be formed from letters
+    if (!canFormWord(word, game.letters)) {
+      toast.error(`Cannot form "${word}" from available letters!`, {
+        duration: 3000,
+      });
       return;
     }
 
@@ -133,6 +164,12 @@ export default function FormationGame() {
       const newScore = prev.score + score;
       const won = hasWon(newFoundWords, prev.allPossibleWords);
       
+      if (won) {
+        toast.success(`🎉 Round Complete! You found all words!`, {
+          duration: 5000,
+        });
+      }
+      
       return {
         ...prev,
         foundWords: newFoundWords,
@@ -146,10 +183,9 @@ export default function FormationGame() {
     setUsedLetters(new Set());
 
     // Show success
-    const event = new CustomEvent('showToast', {
-      detail: { message: `Found "${word}"! +${score} points`, type: 'success' }
+    toast.success(`Found "${word}"! +${score} points 🎯`, {
+      duration: 3000,
     });
-    window.dispatchEvent(event);
   };
 
   // Handle clearing the current word
@@ -172,10 +208,30 @@ export default function FormationGame() {
   const totalWords = game?.allPossibleWords.length || 0;
   const foundCount = game?.foundWords.length || 0;
 
-  if (isLoading || !game) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-500">Loading...</div>
+        <div className="text-center">
+          <div className="text-4xl mb-4">🔄</div>
+          <div className="text-xl text-gray-500">Generating your puzzle...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!game) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">😅</div>
+          <div className="text-xl text-gray-500">Something went wrong. Please try again!</div>
+          <button
+            onClick={startNewGame}
+            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            Start New Game
+          </button>
+        </div>
       </div>
     );
   }
@@ -279,11 +335,9 @@ export default function FormationGame() {
             foundWords={game.foundWords}
             allPossibleWords={game.allPossibleWords}
             onWordClick={(word) => {
-              // Could show definition or info
-              const event = new CustomEvent('showToast', {
-                detail: { message: `${word} - 6 letters`, type: 'info' }
+              toast.info(`${word} - ${word.length} letters`, {
+                duration: 2000,
               });
-              window.dispatchEvent(event);
             }}
           />
         </motion.div>
@@ -300,13 +354,14 @@ export default function FormationGame() {
               const available = game.allPossibleWords.filter(w => !game.foundWords.includes(w));
               if (available.length > 0) {
                 const hint = available[0];
-                const event = new CustomEvent('showToast', {
-                  detail: { 
-                    message: `Hint: ${hint.slice(0, 3)}... (${hint.length} letters)`, 
-                    type: 'info' 
-                  }
+                const hintWord = hint.slice(0, 3) + '...';
+                toast.info(`💡 Hint: ${hintWord} (${hint.length} letters)`, {
+                  duration: 4000,
                 });
-                window.dispatchEvent(event);
+              } else {
+                toast.warning("No more hints available! You found all words!", {
+                  duration: 3000,
+                });
               }
             }}
             className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
