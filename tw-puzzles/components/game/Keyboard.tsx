@@ -27,11 +27,13 @@ export default function Keyboard() {
   results.forEach((guessResult: LetterResult[]) => {
     guessResult.forEach(({ letter, status }) => {
       const key = letter;
+      // Map any engine-specific statuses (e.g. 'empty') to our keyboard statuses
+      const mappedStatus: KeyStatus[string] = (status === 'empty' ? 'unused' : status) as KeyStatus[string];
       // Don't downgrade status (correct > present > absent)
       if (!keyStatus[key] || 
-          (status === 'correct') || 
-          (status === 'present' && keyStatus[key] === 'absent')) {
-        keyStatus[key] = status;
+          (mappedStatus === 'correct') || 
+          (mappedStatus === 'present' && keyStatus[key] === 'absent')) {
+        keyStatus[key] = mappedStatus;
       }
     });
   });

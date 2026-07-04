@@ -1,4 +1,5 @@
-export type LetterStatus = 'correct' | 'present' | 'absent' | 'empty';
+// Define ALL possible letter statuses
+export type LetterStatus = 'correct' | 'present' | 'absent' | 'empty' | 'unused';
 
 export interface LetterResult {
   letter: string;

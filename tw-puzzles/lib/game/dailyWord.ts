@@ -1,4 +1,4 @@
-import { TECH_WORDS } from './wordList';
+import { TECH_WORDS } from "./wordList";
 
 export function getDailyWord(): string {
   // Use a deterministic algorithm based on today's date

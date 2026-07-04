@@ -1,8 +1,8 @@
 'use client';
 
 import { useGameStore } from '@/lib/store/gameStore';
-import Tile from './Tile';
 import { MAX_ATTEMPTS, WORD_LENGTH } from '@/lib/game/wordEngine';
+import Tile from './Tile';
 
 export default function Grid() {
   const { guesses, currentGuess, getGuessResults, gameStatus } = useGameStore();

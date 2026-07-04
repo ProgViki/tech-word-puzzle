@@ -11,11 +11,13 @@ interface TileProps {
   delay?: number;
 }
 
+// Complete status styles mapping
 const statusStyles: Record<LetterStatus, string> = {
   correct: 'bg-emerald-500 text-white border-emerald-500',
   present: 'bg-yellow-500 text-white border-yellow-500',
   absent: 'bg-gray-500 text-white border-gray-500',
   empty: 'border-2 border-gray-300 dark:border-gray-600 bg-transparent',
+  unused: 'border-2 border-gray-200 dark:border-gray-700 bg-transparent',
 };
 
 const statusColors: Record<LetterStatus, string> = {
@@ -23,6 +25,7 @@ const statusColors: Record<LetterStatus, string> = {
   present: '#eab308',
   absent: '#6b7280',
   empty: '#d1d5db',
+  unused: '#e5e7eb',
 };
 
 export default function Tile({ 
@@ -33,7 +36,7 @@ export default function Tile({
   delay = 0 
 }: TileProps) {
   const isFilled = letter && letter.length > 0;
-  const shouldAnimate = isFilled && status !== 'empty' && isRevealing;
+  const shouldAnimate = isFilled && status !== 'empty' && status !== 'unused' && isRevealing;
 
   // Animation variants
   const tileVariants = {
@@ -80,16 +83,14 @@ export default function Tile({
         w-14 h-14 flex items-center justify-center text-2xl font-extrabold uppercase
         rounded-md transition-all duration-200 select-none
         ${statusStyles[status]}
-        ${isFilled && status === 'empty' ? 'border-2 border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800' : ''}
-        ${status === 'empty' && !isFilled ? 'bg-gray-100 dark:bg-gray-800' : ''}
+        ${isFilled && (status === 'empty' || status === 'unused') ? 'border-2 border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800' : ''}
+        ${(status === 'empty' || status === 'unused') && !isFilled ? 'bg-gray-100 dark:bg-gray-800' : ''}
         shadow-sm hover:shadow-md transition-shadow
       `}
       initial="initial"
       animate={getAnimation()}
-      variants={tileVariants}
+    //   variants={tileVariants}
       style={{
-        backgroundColor: status === 'empty' && isFilled ? undefined : undefined,
-        color: status === 'empty' && isFilled ? 'inherit' : undefined,
         transformStyle: 'preserve-3d',
         perspective: '400px'
       }}
