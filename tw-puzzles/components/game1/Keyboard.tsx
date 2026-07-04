@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useGameStore } from '@/lib/store/gameStore';
-import { LetterResult } from '@/lib/game/wordEngine';
+import { LetterResult } from '@/lib/game1/wordEngine';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const KEYBOARD_ROWS = [

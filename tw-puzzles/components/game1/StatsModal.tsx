@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useGameStore } from '@/lib/store/gameStore';
-import { MAX_ATTEMPTS } from '@/lib/game/wordEngine';
+import { MAX_ATTEMPTS } from '@/lib/game1/wordEngine';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface StatsModalProps {

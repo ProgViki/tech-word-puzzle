@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import Grid from '@/components/game/Grid';
-import Keyboard from '@/components/game/Keyboard';
-import GameStatus from '@/components/game/GameStatus';
-import StatsModal from '@/components/game/StatsModal';
+import Grid from '@/components/game1/Grid';
+import Keyboard from '@/components/game1/Keyboard';
+import GameStatus from '@/components/game1/GameStatus';
+import StatsModal from '@/components/game1/StatsModal';
 import { useGameStore } from '@/lib/store/gameStore';
 import toast, { Toaster } from 'react-hot-toast';
 

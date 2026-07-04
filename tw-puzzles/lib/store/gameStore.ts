@@ -8,8 +8,8 @@ import {
   validateGuess,
   isGameWon,
   isGameLost
-} from '../game/wordEngine';
-import { getDailyWord } from '../game/dailyWord';
+} from '../game1/wordEngine';
+import { getDailyWord } from '../game1/dailyWord';
 
 interface GameStore extends GameState {
   // Actions

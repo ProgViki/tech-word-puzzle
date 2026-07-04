@@ -1,7 +1,7 @@
 'use client';
 
 import { useGameStore } from '@/lib/store/gameStore';
-import { MAX_ATTEMPTS, WORD_LENGTH } from '@/lib/game/wordEngine';
+import { MAX_ATTEMPTS, WORD_LENGTH } from '@/lib/game1/wordEngine';
 import Tile from './Tile';
 
 export default function Grid() {

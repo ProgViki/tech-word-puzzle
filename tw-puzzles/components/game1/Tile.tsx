@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { LetterStatus } from '@/lib/game/wordEngine';
+import { LetterStatus } from '@/lib/game1/wordEngine';
 
 interface TileProps {
   letter: string;
