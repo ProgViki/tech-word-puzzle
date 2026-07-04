@@ -1,110 +1,93 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import Grid from '@/components/game1/Grid';
-import Keyboard from '@/components/game1/Keyboard';
-import GameStatus from '@/components/game1/GameStatus';
-import StatsModal from '@/components/game1/StatsModal';
-import { useGameStore } from '@/lib/store/gameStore';
-import toast, { Toaster } from 'react-hot-toast';
 
 export default function Home() {
-  const [showStats, setShowStats] = useState(false);
-  const { gameStatus, resetGame } = useGameStore();
-  
-  // Share functionality
-  const shareResult = () => {
-    const { guesses, targetWord, stats } = useGameStore.getState();
-    const attempts = guesses.length;
-    const result = gameStatus === 'won' ? '✅' : '❌';
-    
-    const gridEmojis = guesses.map(guess => {
-      // Convert guess to emojis
-      // This is simplified - you'd want proper emoji mapping
-      return '🟩🟨⬛'; // Placeholder
-    }).join('\n');
-    
-    const shareText = `
-Tech Word Puzzle ${result}
-${attempts}/${6} attempts
-${gridEmojis}
-#TechWordPuzzle
-    `.trim();
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'Tech Word Puzzle',
-        text: shareText,
-      }).catch(() => {
-        copyToClipboard(shareText);
-      });
-    } else {
-      copyToClipboard(shareText);
-    }
-  };
-  
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.success('Copied to clipboard!');
-    });
-  };
-  
+  const games = [
+    {
+      id: 'wordle',
+      title: 'Guess the Tech Word',
+      description: '6 letters, 6 attempts. Find the daily tech term!',
+      icon: '🎯',
+      color: 'from-blue-500 to-purple-500',
+      path: '/wordle',
+    },
+    {
+      id: 'formation',
+      title: 'Word Formation',
+      description: 'Find all tech words from the given letters!',
+      icon: '🧩',
+      color: 'from-green-500 to-emerald-500',
+      path: '/formation',
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
-      <Toaster position="top-center" />
-      
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            TechWord
-          </h1>
-          <div className="flex gap-3">
-            <button
-              onClick={shareResult}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2"
-              aria-label="Share result"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setShowStats(true)}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2"
-              aria-label="View statistics"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        
-        {/* Game */}
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="max-w-4xl w-full">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-center mb-12"
         >
-          <Grid />
-          <Keyboard />
+          <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent mb-4">
+            Tech Word Games
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
+            Choose your puzzle and master tech terminology!
+          </p>
         </motion.div>
-        
-        {/* Game Over Modal */}
-        <GameStatus />
-        
-        {/* Stats Modal */}
-        <StatsModal 
-          isOpen={showStats} 
-          onClose={() => setShowStats(false)} 
-        />
-        
-        {/* Footer */}
-        <p className="mt-8 text-center text-xs text-gray-400 dark:text-gray-500">
-          Guess the 6-letter tech term • New word daily
-        </p>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {games.map((game, index) => (
+            <motion.div
+              key={game.id}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Link href={game.path}>
+                <div className={`
+                  bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl
+                  hover:shadow-2xl transition-all duration-300
+                  hover:-translate-y-2 cursor-pointer
+                  border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800
+                `}>
+                  <div className={`
+                    w-16 h-16 rounded-2xl bg-gradient-to-r ${game.color}
+                    flex items-center justify-center text-3xl mb-4
+                  `}>
+                    {game.icon}
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    {game.title}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {game.description}
+                  </p>
+                  <div className="mt-4 flex items-center text-blue-500 font-medium">
+                    Play Now
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mt-12 text-center"
+        >
+          <p className="text-sm text-gray-400 dark:text-gray-500">
+            💻 Powered by a curated dictionary of 200+ tech terms
+          </p>
+        </motion.div>
       </div>
     </main>
   );
