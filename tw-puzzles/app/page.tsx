@@ -21,11 +21,19 @@ export default function Home() {
       color: 'from-green-500 to-emerald-500',
       path: '/formation',
     },
+    {
+      id: 'unscramble',
+      title: 'Tech Unscramble',
+      description: 'Unscramble the tech terms as fast as you can!',
+      icon: '🔀',
+      color: 'from-orange-500 to-red-500',
+      path: '/unscramble',
+    },
   ];
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
+      <div className="max-w-6xl w-full">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -39,7 +47,7 @@ export default function Home() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           {games.map((game, index) => (
             <motion.div
               key={game.id}
@@ -53,6 +61,7 @@ export default function Home() {
                   hover:shadow-2xl transition-all duration-300
                   hover:-translate-y-2 cursor-pointer
                   border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800
+                  h-full flex flex-col
                 `}>
                   <div className={`
                     w-16 h-16 rounded-2xl bg-gradient-to-r ${game.color}
@@ -63,7 +72,7 @@ export default function Home() {
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {game.title}
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-gray-600 dark:text-gray-300 flex-1">
                     {game.description}
                   </p>
                   <div className="mt-4 flex items-center text-blue-500 font-medium">
